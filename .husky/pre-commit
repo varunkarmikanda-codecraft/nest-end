@@ -1,0 +1,9 @@
+echo "Starting pre-commit hooks"
+
+# 1. Run lint-staged (This formats, lints, AND automatically adds/re-stages files)
+echo "Formatting and linting staged files..."
+npx lint-staged
+
+# Test
+echo "Running test"
+npm test

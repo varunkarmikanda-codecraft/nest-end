@@ -1,0 +1,45 @@
+# 1. Build & Compiled Outputs
+/dist
+/build
+*.js.map
+*.d.ts
+
+# 2. Dependencies & Package Managers
+/node_modules
+/package-lock.json
+/yarn.lock
+/pnpm-lock.yaml
+/bun.lockb
+
+# 3. Test & Coverage Artifacts
+/coverage
+/.nyc_output
+*.lcov
+
+# 4. Environment and Secrets
+.env
+.env.*
+!.env.example
+*.pem
+*.key
+
+# 5. IDE & System Files
+/.idea
+/.vscode
+*.suo
+*.ntvs*
+*.njsproj
+*.sln
+*.sw?
+.DS_Store
+Thumbs.db
+
+# 6. Database Artifacts (Docker/Local)
+/docker/data
+/db/data
+*.db
+*.sqlite
+
+# 7. NestJS / Nx Workspace Cache
+/.nx
+/.turbo
