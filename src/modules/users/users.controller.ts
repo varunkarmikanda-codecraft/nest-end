@@ -3,10 +3,19 @@ import {
   Controller,
   Delete,
   Get,
+  Head,
+  Headers,
+  HostParam,
+  HttpCode,
+  Ip,
+  Options,
   Param,
   Patch,
   Post,
   Query,
+  Req,
+  Res,
+  Session,
 } from '@nestjs/common';
 import { UsersService } from './users.service';
 
@@ -32,6 +41,43 @@ export class UsersController {
   @Get('devs')
   findDevs() {
     return this.userService.findAll('DEV');
+  }
+
+  // DELETE /users/meta
+  @Get('meta')
+  metadata(
+    @Ip() ip: string,
+    @HostParam('account') account: string,
+    // @Session() session: Record<string, any>,
+    @Headers() header: Record<string, string>,
+    @Req() request: Request,
+  ) {
+    return {
+      ip: ip,
+      account: account,
+      header: header,
+      request: {
+        method: request.method,
+        url: request.url,
+        body: request.body,
+        // query: request.query,
+        // param: request.param,
+        mode: request.mode,
+      }
+    };
+  }
+
+  @Get('wild/*wildcard')
+  wildcard(@Param('wildcard') wild: string | string[]) {
+    const wildStr = Array.isArray(wild) ? wild.join('/') : wild;
+
+    const parts = wildStr.split('/');
+
+    return {
+      raw: wildStr,
+      parts,
+      aspath: parts.join('/'),
+    };
   }
 
   // GET /users/:id
