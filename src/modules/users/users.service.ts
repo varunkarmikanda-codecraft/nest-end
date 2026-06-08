@@ -1,4 +1,7 @@
-import { Injectable } from '@nestjs/common';
+import { ConflictException, Injectable } from '@nestjs/common';
+import { UsersRepository } from './users.repository';
+import { RoleEnum } from './enums/role.enum';
+import { CreateUserDto } from './dto/create-user.dto';
 
 @Injectable()
 export class UsersService {
@@ -47,30 +50,22 @@ export class UsersService {
     },
   ];
 
-  findAll(role?: 'ADMIN' | 'DEV' | 'INTERN') {
-    return role ? this.users.filter((user) => user.role === role) : this.users;
+  constructor(private readonly usersRepository: UsersRepository) {}
+
+  findAll(role?: RoleEnum) {
+    return this.usersRepository.findAll(role)
   }
 
   findOne(id: string) {
     return this.users.find((user) => user.id === id);
   }
 
-  create(createUser: {
-    name: string;
-    email: string;
-    role: 'ADMIN' | 'DEV' | 'INTERN';
-  }) {
-    const highestUserId = [...this.users].sort(
-      (a, b) => Number(b.id) - Number(a.id),
-    );
+  async create(createUser: CreateUserDto) {
+    const duplicateUser = this.usersRepository.findDuplicateUser(createUser.email);
 
-    const newUser = {
-      id: String(Number(highestUserId[0].id) + 1),
-      ...createUser,
-    };
+    if(!duplicateUser) throw new ConflictException('User already exists');
 
-    this.users.push(newUser);
-    return newUser;
+    return this.usersRepository.create(createUser);
   }
 
   update(

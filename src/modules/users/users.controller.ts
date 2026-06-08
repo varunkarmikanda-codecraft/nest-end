@@ -18,10 +18,12 @@ import {
   Session,
 } from '@nestjs/common';
 import { UsersService } from './users.service';
+import { RoleEnum } from './enums/role.enum';
+import { CreateUserDto } from './dto/create-user.dto';
 
 @Controller('users')
 export class UsersController {
-  constructor(private readonly userService: UsersService) {}
+  constructor(private readonly usersService: UsersService) {}
 
   /**
    * GET /users
@@ -33,14 +35,14 @@ export class UsersController {
 
   // GET /users
   @Get()
-  findAll(@Query('role') role?: 'ADMIN' | 'DEV' | 'INTERN') {
-    return this.userService.findAll(role);
+  findAll(@Query('role') role?: RoleEnum) {
+    return this.usersService.findAll(role);
   }
 
   // GET /users/devs
   @Get('devs')
   findDevs() {
-    return this.userService.findAll('DEV');
+    return this.usersService.findAll(RoleEnum.developer);
   }
 
   // DELETE /users/meta
@@ -83,20 +85,16 @@ export class UsersController {
   // GET /users/:id
   @Get(':id')
   findOne(@Param('id') id: string) {
-    return this.userService.findOne(id);
+    return this.usersService.findOne(id);
   }
 
   // POST /users
   @Post()
-  create(
+  async create(
     @Body()
-    createUser: {
-      name: string;
-      email: string;
-      role: 'ADMIN' | 'DEV' | 'INTERN';
-    },
+    createUser: CreateUserDto
   ) {
-    return this.userService.create(createUser);
+    return await this.usersService.create(createUser);
   }
 
   // POST /users/alt
@@ -111,12 +109,12 @@ export class UsersController {
   // PATCH /users/:id
   @Patch(':id')
   update(@Param('id') id: string, @Body() updateUser: {}) {
-    return this.userService.update(id, updateUser);
+    return this.usersService.update(id, updateUser);
   }
 
   // DELETE /users/:id
   @Delete(':id')
   delete(@Param('id') id: string) {
-    return this.userService.delete(id);
+    return this.usersService.delete(id);
   }
 }
