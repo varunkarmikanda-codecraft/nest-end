@@ -1,9 +1,9 @@
 import { pgEnum } from 'drizzle-orm/pg-core';
 import { varchar } from 'drizzle-orm/pg-core';
 import { pgTable, uuid } from 'drizzle-orm/pg-core';
-import { RoleEnum } from '../users/enums/role.enum';
+import { ROLES } from '../users/entities/user.entity';
 
-export const userRoles = pgEnum('role', RoleEnum);
+export const userRoles = pgEnum('role', ROLES);
 
 export const users = pgTable('users', {
   id: uuid('id').defaultRandom().primaryKey().notNull(),

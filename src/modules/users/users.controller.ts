@@ -3,25 +3,25 @@ import {
   Controller,
   Delete,
   Get,
-  Head,
   Headers,
   HostParam,
-  HttpCode,
   Ip,
-  Options,
   Param,
+  ParseUUIDPipe,
   Patch,
   Post,
   Query,
   Req,
-  Res,
-  Session,
 } from '@nestjs/common';
 import { UsersService } from './users.service';
-import { RoleEnum } from './enums/role.enum';
 import { CreateUserDto } from './dto/create-user.dto';
+import { UpdateUserDto } from './dto/update-user.dto';
+import { FindAllQueryDto } from './dto/find-all-query.dto';
 
-@Controller('users')
+@Controller({
+  path: 'users',
+  version: '1',
+})
 export class UsersController {
   constructor(private readonly usersService: UsersService) {}
 
@@ -35,14 +35,14 @@ export class UsersController {
 
   // GET /users
   @Get()
-  findAll(@Query('role') role?: RoleEnum) {
-    return this.usersService.findAll(role);
+  async findAll(@Query() query?: FindAllQueryDto) {
+    return await this.usersService.findAll(query);
   }
 
   // GET /users/devs
   @Get('devs')
-  findDevs() {
-    return this.usersService.findAll(RoleEnum.developer);
+  async findDevs() {
+    return await this.usersService.findAll({ role: 'developer' });
   }
 
   // DELETE /users/meta
@@ -65,7 +65,7 @@ export class UsersController {
         // query: request.query,
         // param: request.param,
         mode: request.mode,
-      }
+      },
     };
   }
 
@@ -84,17 +84,17 @@ export class UsersController {
 
   // GET /users/:id
   @Get(':id')
-  findOne(@Param('id') id: string) {
-    return this.usersService.findOne(id);
+  async findOne(@Param('id', ParseUUIDPipe) id: string) {
+    return await this.usersService.findOne(id);
   }
 
   // POST /users
   @Post()
   async create(
     @Body()
-    createUser: CreateUserDto
+    createUserDto: CreateUserDto,
   ) {
-    return await this.usersService.create(createUser);
+    return await this.usersService.create(createUserDto);
   }
 
   // POST /users/alt
@@ -108,13 +108,13 @@ export class UsersController {
 
   // PATCH /users/:id
   @Patch(':id')
-  update(@Param('id') id: string, @Body() updateUser: {}) {
-    return this.usersService.update(id, updateUser);
+  async update(@Param('id') id: string, @Body() updateUserDto: UpdateUserDto) {
+    return await this.usersService.update(id, updateUserDto);
   }
 
   // DELETE /users/:id
   @Delete(':id')
-  delete(@Param('id') id: string) {
-    return this.usersService.delete(id);
+  async delete(@Param('id') id: string) {
+    return await this.usersService.delete(id);
   }
 }

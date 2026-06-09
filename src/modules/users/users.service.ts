@@ -1,7 +1,12 @@
-import { ConflictException, Injectable } from '@nestjs/common';
+import {
+  ConflictException,
+  Injectable,
+  NotFoundException,
+} from '@nestjs/common';
 import { UsersRepository } from './users.repository';
-import { RoleEnum } from './enums/role.enum';
 import { CreateUserDto } from './dto/create-user.dto';
+import { UpdateUserDto } from './dto/update-user.dto';
+import { FindAllQueryDto } from './dto/find-all-query.dto';
 
 @Injectable()
 export class UsersService {
@@ -52,44 +57,52 @@ export class UsersService {
 
   constructor(private readonly usersRepository: UsersRepository) {}
 
-  findAll(role?: RoleEnum) {
-    return this.usersRepository.findAll(role)
+  async findAll(query?: FindAllQueryDto) {
+    return await this.usersRepository.findAll(query);
   }
 
-  findOne(id: string) {
-    return this.users.find((user) => user.id === id);
+  async findOne(id: string) {
+    const user = await this.usersRepository.findOne(id);
+    if (!user) {
+      throw new NotFoundException('User not found');
+    }
+    return user;
   }
 
-  async create(createUser: CreateUserDto) {
-    const duplicateUser = this.usersRepository.findDuplicateUser(createUser.email);
+  async create(createUserDto: CreateUserDto) {
+    const duplicateUser = await this.usersRepository.findDuplicateUser(
+      createUserDto.email,
+    );
 
-    if(!duplicateUser) throw new ConflictException('User already exists');
+    if (duplicateUser) {
+      throw new ConflictException('User already exists');
+    }
 
-    return this.usersRepository.create(createUser);
+    return await this.usersRepository.create(createUserDto);
   }
 
-  update(
-    id: string,
-    updatedUser: {
-      name?: string;
-      email?: string;
-      role?: 'ADMIN' | 'DEV' | 'INTERN';
-    },
-  ) {
-    this.users = this.users.map((user) => {
-      if (user.id === id) {
-        return { ...user, ...updatedUser };
-      }
-      return user;
-    });
-    return this.findOne(id);
+  async update(id: string, updatedUserDto: UpdateUserDto) {
+    const existingUser = await this.usersRepository.findOne(id);
+    if (!existingUser) {
+      throw new NotFoundException('User not found');
+    }
+    const conflictingUser = await this.usersRepository.findDuplicateUser(
+      updatedUserDto.email ?? existingUser.email,
+    );
+    if (conflictingUser && conflictingUser.id !== id) {
+      throw new ConflictException(
+        'Another user with the same email already exists',
+      );
+    }
+    return await this.usersRepository.update(id, updatedUserDto);
   }
 
-  delete(id: string) {
-    const removedUser = this.findOne(id);
+  async delete(id: string) {
+    const existingUser = await this.usersRepository.findOne(id);
+    if (!existingUser) {
+      throw new NotFoundException('User not found');
+    }
 
-    this.users = this.users.filter((user) => user.id !== id);
-
-    return removedUser;
+    return await this.usersRepository.delete(id);
   }
 }
