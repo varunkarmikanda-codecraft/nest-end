@@ -11,3 +11,10 @@ export const users = pgTable('users', {
   email: varchar('email', { length: 100 }).notNull().unique(),
   role: userRoles('role').notNull(),
 });
+
+export const posts = pgTable('posts', {
+  id: uuid('id').defaultRandom().primaryKey().notNull(),
+  userId: uuid('user_id').notNull().references(() => users.id, { onDelete: 'cascade' }),
+  title: varchar('title', { length: 200 }).notNull(),
+  content: varchar('content').notNull(),
+}) 

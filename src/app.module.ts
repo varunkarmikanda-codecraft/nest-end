@@ -6,6 +6,7 @@ import { DbModule } from './modules/db/db.module';
 import { ConfigModule, ConfigService } from '@nestjs/config';
 import { LoggerModule } from 'nestjs-pino';
 import { randomUUID } from 'crypto';
+import { PostsModule } from './modules/posts/posts.module';
 
 @Module({
   imports: [
@@ -79,6 +80,7 @@ import { randomUUID } from 'crypto';
     }),
     UsersModule,
     DbModule,
+    PostsModule,
   ],
   controllers: [AppController],
   providers: [AppService],
