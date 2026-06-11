@@ -17,6 +17,7 @@ import { UsersService } from './users.service';
 import { CreateUserDto } from './dto/create-user.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
 import { FindAllQueryDto } from './dto/find-all-query.dto';
+import { UserDto } from './dto/user.dto';
 
 @Controller({
   path: 'users',
@@ -35,13 +36,13 @@ export class UsersController {
 
   // GET /users
   @Get()
-  async findAll(@Query() query?: FindAllQueryDto) {
+  async findAll(@Query() query?: FindAllQueryDto): Promise<UserDto[]> {
     return await this.usersService.findAll(query);
   }
 
   // GET /users/devs
   @Get('devs')
-  async findDevs() {
+  async findDevs(): Promise<UserDto[]> {
     return await this.usersService.findAll({ role: 'developer' });
   }
 
@@ -84,7 +85,7 @@ export class UsersController {
 
   // GET /users/:id
   @Get(':id')
-  async findOne(@Param('id', ParseUUIDPipe) id: string) {
+  async findOne(@Param('id', ParseUUIDPipe) id: string): Promise<UserDto> {
     return await this.usersService.findOne(id);
   }
 
@@ -93,7 +94,7 @@ export class UsersController {
   async create(
     @Body()
     createUserDto: CreateUserDto,
-  ) {
+  ): Promise<UserDto> {
     return await this.usersService.create(createUserDto);
   }
 
@@ -108,13 +109,16 @@ export class UsersController {
 
   // PATCH /users/:id
   @Patch(':id')
-  async update(@Param('id') id: string, @Body() updateUserDto: UpdateUserDto) {
+  async update(
+    @Param('id') id: string,
+    @Body() updateUserDto: UpdateUserDto,
+  ): Promise<UserDto> {
     return await this.usersService.update(id, updateUserDto);
   }
 
   // DELETE /users/:id
   @Delete(':id')
-  async delete(@Param('id') id: string) {
+  async delete(@Param('id') id: string): Promise<UserDto> {
     return await this.usersService.delete(id);
   }
 }

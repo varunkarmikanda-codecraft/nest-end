@@ -5,12 +5,13 @@ import * as schema from '../db/schema';
 import { UpdateUserDto } from './dto/update-user.dto';
 import { FindAllQueryDto } from './dto/find-all-query.dto';
 import { CreateUserDto } from './dto/create-user.dto';
+import { UserDto } from './dto/user.dto';
 
 @Injectable()
 export class UsersRepository {
   constructor(private readonly drizzle: DrizzleService) {}
 
-  async findAll(query?: FindAllQueryDto) {
+  async findAll(query?: FindAllQueryDto): Promise<UserDto[]> {
     const result = await this.drizzle.db
       .select()
       .from(schema.users)
@@ -19,7 +20,7 @@ export class UsersRepository {
     return result;
   }
 
-  async findOne(id: string) {
+  async findOne(id: string): Promise<UserDto | null> {
     const [result] = await this.drizzle.db
       .select()
       .from(schema.users)
@@ -29,17 +30,17 @@ export class UsersRepository {
     return result ?? null;
   }
 
-  async findDuplicateUser(email: string) {
+  async findDuplicateUser(email: string): Promise<UserDto | null> {
     const [result] = await this.drizzle.db
       .select()
       .from(schema.users)
       .where(eq(schema.users.email, email));
 
-    return result;
+    return result ?? null;
   }
 
-  async create(createUserDto: CreateUserDto) {
-    const result = await this.drizzle.db
+  async create(createUserDto: CreateUserDto): Promise<UserDto> {
+    const [result] = await this.drizzle.db
       .insert(schema.users)
       .values(createUserDto)
       .returning();
@@ -47,22 +48,25 @@ export class UsersRepository {
     return result;
   }
 
-  async update(id: string, updatedUserDto: UpdateUserDto) {
+  async update(
+    id: string,
+    updatedUserDto: UpdateUserDto,
+  ): Promise<UserDto | null> {
     const [result] = await this.drizzle.db
       .update(schema.users)
       .set(updatedUserDto)
       .where(eq(schema.users.id, id))
       .returning();
 
-    return result;
+    return result ?? null;
   }
 
-  async delete(id: string) {
+  async delete(id: string): Promise<UserDto | null> {
     const [result] = await this.drizzle.db
       .delete(schema.users)
       .where(eq(schema.users.id, id))
       .returning();
 
-    return result;
+    return result ?? null;
   }
 }
